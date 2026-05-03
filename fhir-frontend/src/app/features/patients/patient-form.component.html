@@ -1,0 +1,91 @@
+<div class="container">
+  <div class="header">
+    <h1>{{ isEditing ? 'Éditer le patient' : 'Ajouter un nouveau patient' }}</h1>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div class="form-card">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="familyName">Nom de famille*</label>
+        <input
+          type="text"
+          id="familyName"
+          class="form-control"
+          [class.is-invalid]="submitted && f['familyName'].errors"
+          formControlName="familyName"
+          placeholder="Dupont"
+        />
+        <div class="error-message" *ngIf="submitted && f['familyName']?.hasError('required')">
+          Le nom de famille est requis
+        </div>
+        <div class="error-message" *ngIf="submitted && f['familyName']?.hasError('minlength')">
+          Le nom doit contenir au moins 2 caractères
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="givenName">Prénom*</label>
+        <input
+          type="text"
+          id="givenName"
+          class="form-control"
+          [class.is-invalid]="submitted && f['givenName'].errors"
+          formControlName="givenName"
+          placeholder="Jean"
+        />
+        <div class="error-message" *ngIf="submitted && f['givenName']?.hasError('required')">
+          Le prénom est requis
+        </div>
+        <div class="error-message" *ngIf="submitted && f['givenName']?.hasError('minlength')">
+          Le prénom doit contenir au moins 2 caractères
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="gender">Genre*</label>
+        <select id="gender" class="form-control" formControlName="gender">
+          <option value="male">Homme</option>
+          <option value="female">Femme</option>
+          <option value="other">Autre</option>
+          <option value="unknown">Inconnu</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="birthDate">Date de naissance*</label>
+        <input
+          type="date"
+          id="birthDate"
+          class="form-control"
+          [class.is-invalid]="submitted && f['birthDate'].errors"
+          formControlName="birthDate"
+        />
+        <div class="error-message" *ngIf="submitted && f['birthDate']?.hasError('required')">
+          La date de naissance est requise
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="loading"
+        >
+          {{ loading ? 'Enregistrement...' : (isEditing ? 'Mettre à jour' : 'Créer') }}
+        </button>
+        <button
+          type="button"
+          class="btn btn-secondary"
+          (click)="cancel()"
+          [disabled]="loading"
+        >
+          Annuler
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

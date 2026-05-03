@@ -1,0 +1,141 @@
+<div class="patient-list-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="header-content">
+      <div>
+        <h1 class="page-title">Patient Management</h1>
+        <p class="page-subtitle">FHIR-compliant patient registry and medical records</p>
+      </div>
+      <button class="btn btn-primary btn-lg" (click)="createPatient()">
+        <span class="icon">➕</span> Add Patient
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <div class="search-box">
+      <span class="search-icon">🔍</span>
+      <input
+        type="text"
+        class="search-input"
+        placeholder="Search by name, date of birth..."
+        [value]="searchText"
+        (input)="onSearchChange($event.target.value)"
+      />
+    </div>
+
+    <div class="filter-controls">
+      <select class="filter-select" [(ngModel)]="selectedGender" (change)="onGenderFilter(selectedGender)">
+        <option value="">All Genders</option>
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="other">Other</option>
+        <option value="unknown">Unknown</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error" class="alert alert-error">
+    <span class="alert-icon">⚠️</span>
+    <span>{{ error }}</span>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading patients...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && patients.length === 0" class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>No patients found</h3>
+    <p>Start by adding a new patient to your registry</p>
+    <button class="btn btn-primary" (click)="createPatient()">Add First Patient</button>
+  </div>
+
+  <!-- Patients Grid -->
+  <div *ngIf="!loading && patients.length > 0" class="patients-grid">
+    <div *ngFor="let patient of patients" class="patient-card" (click)="viewPatient(patient.id)">
+      <div class="card-header">
+        <div class="patient-avatar">
+          {{ (patient.name[0]?.family?.[0] || 'P') + (patient.name[0]?.given?.[0]?.[0] || '') }}
+        </div>
+        <div class="card-actions">
+          <button class="action-btn" (click)="viewPatient(patient.id); $event.stopPropagation()" title="View details">
+            👁️
+          </button>
+          <button class="action-btn delete" (click)="deletePatient(patient.id, $event)" title="Delete">
+            🗑️
+          </button>
+        </div>
+      </div>
+
+      <div class="card-body">
+        <div class="patient-name">
+          <h3>{{ patient.name[0]?.family || 'Unknown' }}, {{ patient.name[0]?.given?.[0] || '' }}</h3>
+        </div>
+
+        <div class="patient-info">
+          <div class="info-item">
+            <span class="label">Gender:</span>
+            <span class="value">
+              {{ patient.gender === 'male' ? '♂️ Male' : patient.gender === 'female' ? '♀️ Female' : patient.gender }}
+            </span>
+          </div>
+          <div class="info-item">
+            <span class="label">DOB:</span>
+            <span class="value">{{ patient.birthDate | date: 'MMM d, yyyy' }}</span>
+          </div>
+          <div class="info-item">
+            <span class="label">ID:</span>
+            <span class="value identifier">{{ patient.identifier[0]?.value | slice:0:12 }}...</span>
+          </div>
+        </div>
+
+        <div class="card-footer">
+          <button class="btn btn-sm btn-outline" (click)="viewPatient(patient.id); $event.stopPropagation()">
+            View Details
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination-section" *ngIf="totalPages > 1">
+    <div class="pagination-info">
+      Showing {{ (currentPage - 1) * pageSize + 1 }} to {{ Math.min(currentPage * pageSize, totalCount) }} of {{ totalCount }} patients
+    </div>
+    <div class="pagination-controls">
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage === 1"
+        (click)="goToPage(currentPage - 1)"
+        title="Previous page"
+      >
+        ← Previous
+      </button>
+
+      <button
+        *ngFor="let page of paginationArray"
+        class="pagination-btn"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        class="pagination-btn"
+        [disabled]="currentPage === totalPages"
+        (click)="goToPage(currentPage + 1)"
+        title="Next page"
+      >
+        Next →
+      </button>
+    </div>
+  </div>
+</div>

@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,7 +26,21 @@ SECRET_KEY = 'django-insecure-s5+d0c1es+%%n8d!1%#0e6tk^p*wooi-tzi93h9wp-70=xqyuc
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']  # À restreindre en production
+
+# CORS Configuration
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",      # Angular dev server
+    "http://localhost:3000",      # Alternative dev port
+    "http://127.0.0.1:4200",
+]
+
+CORS_EXPOSE_HEADERS = [
+    'Content-Type',
+    'X-CSRFToken',
+]
+
+CORS_ALLOW_CREDENTIALS = True
 
 
 # Application definition
@@ -38,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
         # Apps tierces
+    'corsheaders',
     'rest_framework',
     'django_filters',
     'drf_spectacular',
@@ -48,6 +64,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Ajout CORS AVANT les autres middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -133,13 +150,29 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_PERMISSION_CLASSES': ['rest_framework.permissions.IsAuthenticated'],
 }
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(hours=2),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+}
 
 SPECTACULAR_SETTINGS = {
     'TITLE': 'API FHIR Médicale',
     'DESCRIPTION': 'API conforme au standard HL7 FHIR pour la gestion des patients et observations',
     'VERSION': '1.0.0',
-}
 
+    #  Ajout pour Swagger Authorize (JWT Bearer)
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SECURITY': [{'BearerAuth': []}],
+    'COMPONENTS': {
+        'securitySchemes': {
+            'BearerAuth': {
+                'type': 'http',
+                'scheme': 'bearer',
+                'bearerFormat': 'JWT',
+            }
+        }
+    },
+}
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 

@@ -1,0 +1,76 @@
+<div class="container">
+  <div class="header">
+    <button class="btn btn-secondary" (click)="goBack()">← Retour</button>
+    <h1>Détail du patient</h1>
+    <div></div>
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+
+  <div *ngIf="!loading && patient" class="patient-detail">
+    <div class="patient-card">
+      <div class="card-header">
+        <h2>{{ patient.name[0]?.family }} {{ patient.name[0].given[0] }}</h2>
+        <div class="actions">
+          <button class="btn btn-info" (click)="editPatient()">Éditer</button>
+          <button class="btn btn-danger" (click)="deletePatient()">Supprimer</button>
+        </div>
+      </div>
+
+      <div class="patient-info">
+        <div class="info-row">
+          <label>Identifier:</label>
+          <span>{{ patient.identifier[0]?.value }}</span>
+        </div>
+
+        <div class="info-row">
+          <label>Genre:</label>
+          <span>{{ patient.gender }}</span>
+        </div>
+
+        <div class="info-row">
+          <label>Date de naissance:</label>
+          <span>{{ patient.birthDate | date: 'dd MMMM yyyy' }} ({{ getAge() }} ans)</span>
+        </div>
+
+        <div class="info-row" *ngIf="patient.meta?.lastUpdated">
+          <label>Dernière mise à jour:</label>
+          <span>{{ patient.meta?.lastUpdated | date: 'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="observations-section">
+      <h3>Observations méddicales</h3>
+
+      <div *ngIf="observations.length === 0" class="empty-state">
+        <p>Aucune observation enregistrée</p>
+      </div>
+
+      <div *ngIf="observations.length > 0" class="observations-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Valeur</th>
+              <th>Unité</th>
+              <th>Date effective</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let obs of observations">
+              <td>{{ obs.code.coding[0].display }}</td>
+              <td>{{ obs.valueQuantity.value }}</td>
+              <td>{{ obs.valueQuantity.unit }}</td>
+              <td>{{ obs.effectiveDateTime | date: 'dd/MM/yyyy HH:mm' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,23 @@
+<div class="app-container">
+  <!-- Navbar -->
+  <nav class="navbar" *ngIf="isAuthenticated">
+    <div class="navbar-brand">
+      <h1>FHIR API Management</h1>
+    </div>
+
+    <div class="navbar-menu">
+      <a routerLink="/patients" routerLinkActive="active" class="nav-link">Patients</a>
+      <a routerLink="/observations" routerLinkActive="active" class="nav-link">Observations</a>
+    </div>
+
+    <div class="navbar-user">
+      <span *ngIf="currentUser" class="user-name">{{ currentUser.username }}</span>
+      <button class="btn btn-logout" (click)="logout()">Déconnexion</button>
+    </div>
+  </nav>
+
+  <!-- Main content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+</div>

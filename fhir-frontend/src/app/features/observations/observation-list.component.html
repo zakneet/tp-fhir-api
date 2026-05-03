@@ -1,0 +1,111 @@
+<div class="container">
+  <div class="header">
+    <h1>Observations Médicales</h1>
+    <button class="btn btn-primary btn-create" (click)="createObservation()">
+      + Ajouter une observation
+    </button>
+  </div>
+
+  <div class="filters">
+    <select class="form-control" [(ngModel)]="selectedPatientId" (change)="onFilterChange()">
+      <option value="">Tous les patients</option>
+      <option *ngFor="let patient of patients" [value]="patient.id">
+        {{ patient?.name?.[0]?.family }} {{ patient?.name?.[0]?.given?.[0] }}
+      </option>
+    </select>
+
+    <select class="form-control" [(ngModel)]="selectedObsType" (change)="onFilterChange()">
+      <option value="">Tous les types</option>
+      <option *ngFor="let type of observationTypes | keyvalue" [value]="type.key">
+        {{ type.value }}
+      </option>
+    </select>
+
+    <input
+      type="date"
+      class="form-control"
+      [value]="dateFrom"
+      (change)="dateFrom = $event.target.value; onFilterChange()"
+      placeholder="Date de début"
+    />
+
+    <input
+      type="date"
+      class="form-control"
+      [value]="dateTo"
+      (change)="dateTo = $event.target.value; onFilterChange()"
+      placeholder="Date de fin"
+    />
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+  </div>
+
+  <div *ngIf="loading" class="loading">Chargement...</div>
+
+  <div *ngIf="!loading && observations.length === 0" class="empty-state">
+    <p>Aucune observation trouvée</p>
+  </div>
+
+  <div *ngIf="!loading && observations.length > 0" class="observations-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Patient</th>
+          <th>Type d'observation</th>
+          <th>Valeur</th>
+          <th>Date effective</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let obs of observations"
+          (click)="viewObservation(obs.id)"
+          class="observation-row"
+        >
+          <td>{{ getPatientName(obs.subject.reference.split('/')[1] || '') }}</td>
+          <td>{{ obs.code.coding[0].display }}</td>
+          <td>{{ obs.valueQuantity.value }} {{ obs.valueQuantity.unit }}</td>
+          <td>{{ obs.effectiveDateTime | date: 'dd/MM/yyyy HH:mm' }}</td>
+          <td class="actions">
+            <button class="btn btn-sm btn-info" (click)="viewObservation(obs.id); $event.stopPropagation()">
+              Voir
+            </button>
+            <button class="btn btn-sm btn-danger" (click)="deleteObservation(obs.id, $event)">
+              Supprimer
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button
+      class="btn btn-sm"
+      [disabled]="currentPage === 1"
+      (click)="goToPage(currentPage - 1)"
+    >
+      ← Précédent
+    </button>
+
+    <button
+      *ngFor="let page of paginationArray"
+      class="btn btn-sm"
+      [class.active]="page === currentPage"
+      (click)="goToPage(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button
+      class="btn btn-sm"
+      [disabled]="currentPage === totalPages"
+      (click)="goToPage(currentPage + 1)"
+    >
+      Suivant →
+    </button>
+  </div>
+</div>
